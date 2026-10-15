@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sleep Quest: ภารกิจพิชิตราชาผีอำ | คลินิกหลับดี ศอ.10</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- LINE LIFF SDK v2 -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #121829;
+      --bg-card: #1c2438;
+      --accent-purple: #7952f5;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-line: #06c755;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #1e294b 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      padding: 10px;
+    }
+
+    #game-container {
+      width: 100%;
+      max-width: 440px;
+      min-height: 94vh;
+      background: rgba(28, 36, 56, 0.94);
+      border: 2px solid rgba(121, 82, 245, 0.35);
+      border-radius: 28px;
+      padding: 16px 14px 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(121, 82, 245, 0.2);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .badge-sub {
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 3px 8px 3px 4px;
+    }
+    .user-avatar-mini {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-name-mini {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e2e8f0;
+      max-width: 90px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-sound {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    /* Screen Management */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+    .screen.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* START SCREEN */
+    .start-screen {
+      text-align: center;
+      justify-content: space-between;
+      padding: 10px 4px;
+    }
+    .title-group h1 {
+      font-size: 27px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .title-group p {
+      color: var(--text-sub);
+      font-size: 12.5px;
+    }
+    .hero-art {
+      margin: 18px 0;
+      position: relative;
+    }
+    .avatar-wrapper {
+      width: 130px;
+      height: 130px;
+      background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 70%);
+      border-radius: 50%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      box-shadow: 0 0 28px rgba(59, 130, 246, 0.45);
+      animation: floatHero 3s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    @keyframes floatHero {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .story-bubble {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px dashed rgba(148, 163, 184, 0.3);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin: 14px 0;
+      text-align: left;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(124, 58, 237, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    /* BATTLE ARENA */
+    .battle-header {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 16px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 10px;
+    }
+    .combatant-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .combatant-row:last-child {
+      margin-bottom: 0;
+    }
+    .fighter-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .fighter-icon {
+      font-size: 22px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .fighter-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .bar-container {
+      flex: 1;
+      margin-left: 6px;
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .hp-track {
+      height: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hp-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease-out;
+    }
+    .hp-fill.player {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+    .hp-fill.boss {
+      background: linear-gradient(90deg, #f43f5e, #fb7185);
+    }
+
+    /* Arena Stage */
+    .arena-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+      min-height: 120px;
+      position: relative;
+    }
+    .boss-avatar {
+      font-size: 58px;
+      filter: drop-shadow(0 10px 15px rgba(244, 63, 94, 0.35));
+      animation: bossIdle 2.5s ease-in-out infinite alternate;
+      transition: transform 0.2s;
+    }
+    @keyframes bossIdle {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-6px) scale(1.05); }
+    }
+    .boss-shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+    .boss-dialogue {
+      background: #242f4d;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      border-radius: 14px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fed7aa;
+      text-align: center;
+      max-width: 90%;
+      margin-top: 4px;
+      position: relative;
+    }
+    .boss-dialogue::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -6px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent #242f4d transparent;
+    }
+
+    /* Question Box */
+    .question-box {
+      background: rgba(121, 82, 245, 0.15);
+      border-left: 4px solid var(--accent-purple);
+      padding: 9px 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .question-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #c4b5fd;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .question-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: #fff;
+    }
+
+    /* Cards Deck */
+    .cards-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+    }
+    .card-choice {
+      background: var(--bg-card);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 15px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-choice:hover, .card-choice:active {
+      transform: translateY(-2px);
+      border-color: rgba(121, 82, 245, 0.6);
+      background: #242e47;
+    }
+    .card-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .card-badge.good { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .card-badge.trick { background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .card-badge.bad { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .card-content {
+      flex: 1;
+    }
+    .card-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #f1f5f9;
+      line-height: 1.35;
+      margin-bottom: 2px;
+    }
+    .card-desc {
+      font-size: 10.5px;
+      color: var(--text-sub);
+    }
+
+    /* Modal Feedback (เอ๊ะ!) */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 15, 30, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: #1e293b;
+      border-radius: 22px;
+      padding: 18px 16px;
+      width: 100%;
+      max-width: 350px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      text-align: center;
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.7);
+    }
+    .modal-icon {
+      font-size: 50px;
+      margin-bottom: 6px;
+    }
+    .modal-headline {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .modal-headline.good { color: var(--accent-green); }
+    .modal-headline.trick { color: var(--accent-yellow); }
+    .modal-headline.bad { color: var(--accent-red); }
+    .modal-body {
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      padding: 11px;
+      margin: 10px 0 14px;
+      text-align: left;
+    }
+    .modal-body b {
+      color: #fff;
+    }
+    .btn-modal {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent-purple), #4f46e5);
+      color: white;
+    }
+
+    /* RESULT SCREEN */
+    .result-screen {
+      padding: 6px 4px;
+      overflow-y: auto;
+      max-height: 86vh;
+    }
+    .result-badge {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      background: radial-gradient(circle, #8b5cf6 0%, #6d28d9 100%);
+      box-shadow: 0 0 22px rgba(139, 92, 246, 0.5);
+    }
+    .result-title {
+      font-size: 21px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+    .result-sub {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .score-card {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 14px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+    .score-card .val {
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--accent-cyan);
+    }
+    .score-card .lbl {
+      font-size: 10.5px;
+      color: var(--text-sub);
+    }
+
+    /* Section Boxes */
+    .section-box {
+      background: rgba(30, 41, 59, 0.7);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .section-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tip-item {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+      line-height: 1.4;
+      padding-left: 12px;
+      position: relative;
+    }
+    .tip-item::before {
+      content: '✔';
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-weight: 900;
+    }
+
+    /* Clinic Sleep Lab Box (ซ่อม) */
+    .clinic-box {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(121, 82, 245, 0.2));
+      border: 1.5px solid rgba(239, 68, 68, 0.4);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .clinic-box.safe {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.15));
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+      font-size: 12.5px;
+      margin: 6px 0;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--accent-cyan);
+    }
+    .consent-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 10px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .btn-clinic {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    /* LINE Actions Grid */
+    .line-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .btn-line-share {
+      background: linear-gradient(135deg, var(--accent-line), #059669);
+      color: white;
+      border: none;
+      padding: 11px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 15px rgba(6, 199, 85, 0.3);
+    }
+    .btn-line-chat {
+      background: rgba(6, 199, 85, 0.15);
+      border: 1px solid rgba(6, 199, 85, 0.4);
+      color: #4ade80;
+      padding: 11px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-restart {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #94a3b8;
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    /* Floating damage */
+    .dmg-floater {
+      position: absolute;
+      font-size: 20px;
+      font-weight: 900;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      z-index: 40;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-35px) scale(1.25); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  
+  <!-- Header Bar -->
+  <div class="header-bar">
+    <div class="badge-sub">
+      <span>🏥</span> ศูนย์อนามัยที่ 10
+    </div>
+
+    <!-- LINE User Pill (Auto filled via LIFF) -->
+    <div id="userPill" class="user-pill" style="display: none;">
+      <img id="userAvatarMini" class="user-avatar-mini" src="" alt="avatar">
+      <span id="userNameMini" class="user-name-mini">ผู้เล่น</span>
+    </div>
+
+    <button id="btnSound" class="btn-sound" onclick="toggleAudio()" title="เปิด/ปิดเสียง">🔊</button>
+  </div>
+
+  <!-- SCREEN 1: START -->
+  <div id="screen-start" class="screen active start-screen">
+    <div class="title-group">
+      <h1>SLEEP QUEST</h1>
+      <p>ศึกพิชิตราชาผีอำ (Lifestyle Medicine x Sleep Lab)</p>
+    </div>
+
+    <div class="hero-art">
+      <div class="avatar-wrapper" id="startAvatarBox">
+        <span id="startAvatarEmoji">😴</span>
+      </div>
+      <div class="story-bubble">
+        <b>คืนนี้คุณจะรอดไหม?</b><br>
+        ราชาผีอำกำลังจ้องดูดพลังวิญญาณยามค่ำคืน! จงเลือกการ์ดพฤติกรรมที่ถูกต้องเพื่อเอาชีวิตรอด... ระวัง <b>"กับดักกลลวง"</b> ที่คนเข้าใจผิดกันทั้งเมือง!
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()">⚔️ เริ่มต้นท้าดวล (3 เทิร์น)</button>
+  </div>
+
+  <!-- SCREEN 2: BATTLE ARENA -->
+  <div id="screen-battle" class="screen">
+    
+    <!-- Health Bars -->
+    <div class="battle-header">
+      <!-- Boss -->
+      <div class="combatant-row">
+        <div class="fighter-info">
+          <div class="fighter-icon" id="bossIcon">👹</div>
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>ราชาผีอำ (Snore King)</span>
+              <span id="bossHpTxt">100 / 100</span>
+            </div>
+            <div class="hp-track">
+              <div id="bossHpBar" class="hp-fill boss" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player -->
+      <div class="combatant-row">
+        <div class="fighter-info">
+          <div class="fighter-icon" id="playerBattleIcon">🛌</div>
+          <div class="bar-container">
+            <div class="bar-label">
+              <span id="playerBattleName">น้องหมอนย้วย (คุณ)</span>
+              <span id="playerHpTxt">100 / 100</span>
+            </div>
+            <div class="hp-track">
+              <div id="playerHpBar" class="hp-fill player" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arena Stage -->
+    <div class="arena-stage" id="arenaStage">
+      <div class="boss-avatar" id="bossAvatar">👻</div>
+      <div class="boss-dialogue" id="bossDialogue">
+        "ฮ่าๆๆ คืนนี้ข้าจะทำให้เจ้าง่วงเป็นซอมบี้ไปทั้งวัน!"
+      </div>
+    </div>
+
+    <!-- Question Box -->
+    <div class="question-box">
+      <div class="question-tag" id="turnTag">TURN 1 OF 3 • SLEEP HYGIENE</div>
+      <div class="question-title" id="turnQuestion">
+        เที่ยงคืนแล้ว พลิกตัวไปมา 40 นาที ตาสว่างโร่... คุณจะทำยังไง?
+      </div>
+    </div>
+
+    <!-- Cards Deck -->
+    <div class="cards-deck" id="cardsDeck">
+      <!-- Render dynamically -->
+    </div>
+  </div>
+
+  <!-- MODAL: เอ๊ะ! Feedback -->
+  <div id="modalFeedback" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🤔</div>
+      <div class="modal-headline" id="modalTitle">เอ๊ะ! โดนหลอกแล้ว!</div>
+      <div class="modal-body" id="modalText">
+        คำอธิบายความรู้และผลกระทบต่อร่างกาย
+      </div>
+      <button class="btn-modal" onclick="closeFeedback()">ไปต่อ เทิร์นถัดไป ➔</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: RESULT & CONVERSION (สร้าง นำ ซ่อม) -->
+  <div id="screen-result" class="screen result-screen">
+    <div class="result-badge" id="resRankBadge">🏆</div>
+    <h2 class="result-title" id="resRankTitle">เซียนหลับปุ๋ย</h2>
+    <p class="result-sub" id="resRankSub">ประเมินคุณภาพการนอน & สุขอนามัยวิถีชีวิต (LM)</p>
+
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="val" id="resHlScore">100%</div>
+        <div class="lbl">Health Literacy (ความรอบรู้)</div>
+      </div>
+      <div class="score-card">
+        <div class="val" id="resOsaRisk" style="color: #ef4444;">สูงมาก</div>
+        <div class="lbl">ความเสี่ยงหยุดหายใจ (OSA)</div>
+      </div>
+    </div>
+
+    <!-- LINE Actions: Share & Chat -->
+    <div class="line-actions">
+      <button class="btn-line-share" onclick="shareWithLineFriends()">
+        <span>📢</span> แชร์ชวนเพื่อน/คนข้างตัวมาท้าดวล
+      </button>
+      <button class="btn-line-chat" onclick="openClinicLineOA()">
+        <span>💬</span> ทักแชทคุยกับพี่ค้าง (LINE คลินิกหลับดี ศอ.10)
+      </button>
+    </div>
+
+    <!-- สร้าง: Lifestyle Medicine Sleep Tips -->
+    <div class="section-box">
+      <div class="section-title">
+        <span>🌱</span> สร้าง: 3 คัมภีร์หลับลึกฉบับ LM
+      </div>
+      <div class="tip-item"><b>กฎ 20 นาที:</b> อย่านอนกลิ้งบนเตียงเกิน 20 นาที ถ้านอนไม่หลับให้ลุกไปที่อื่น</div>
+      <div class="tip-item"><b>หยุดกาแฟ/จอ:</b> งดคาเฟอีนหลัง 14.00 น. และตัดแสงสีฟ้าก่อนนอน 1 ชม.</div>
+      <div class="tip-item"><b>ตื่นเวลาเดิม:</b> รักษานาฬิกาชีวิต ห้ามใช้วิธีนอนชดเชยเสาร์-อาทิตย์รวดเดียว</div>
+    </div>
+
+    <!-- ซ่อม: Referral to HPC10 Sleep Lab -->
+    <div id="clinicSection" class="clinic-box">
+      <div class="section-title" id="clinicTitle" style="color: #fca5a5;">
+        <span>🚨</span> ซ่อม: คลินิกหลับดี ศอ.10 (Sleep Lab)
+      </div>
+      <p id="clinicDesc" style="font-size: 12px; color: #fecaca; line-height: 1.45; margin-bottom: 8px;">
+        คุณมีสัญญาณเสี่ยงภาวะหยุดหายใจขณะหลับ (OSA) เช่น กรนดัง หรือเพลียกลางวันเรื้อรัง! ปรับพฤติกรรมเองอาจไม่พอ ควรรับการตรวจ Sleep Test โดยทีมแพทย์เฉพาะทาง
+      </p>
+
+      <div id="contactForm">
+        <input type="text" id="patientName" class="form-input" placeholder="ชื่อเล่น หรือ ชื่อ-นามสกุล">
+        <input type="tel" id="patientPhone" class="form-input" placeholder="เบอร์โทรศัพท์ (สำหรับพี่ค้างโทรปรึกษาฟรี)">
+        
+        <label class="consent-check">
+          <input type="checkbox" id="consentPdpa" checked>
+          <span>ยินยอมให้คลินิกหลับดี ศูนย์อนามัยที่ 10 ติดต่อกลับเพื่อให้คำปรึกษาทางสุขภาพ (PDPA)</span>
+        </label>
+
+        <button class="btn-clinic" onclick="submitReferral()">📞 ขอรับคำปรึกษาฟรีจากพี่ค้าง</button>
+      </div>
+      <div id="sentSuccess" style="display: none; text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; color: #a7f3d0; font-size: 13px;">
+        ✅ ส่งข้อมูลให้ทีมคลินิกหลับดี ศอ.10 เรียบร้อยแล้ว! เจ้าหน้าที่จะติดต่อกลับในวันทำการครับ
+      </div>
+    </div>
+
+    <button class="btn-restart" onclick="restartGame()">🔄 ลองเล่นใหม่อีกครั้ง</button>
+  </div>
+
+</div>
+
+<script>
+  // CONFIGURATION: LINE LIFF & HPC10
+  // ใส่ LIFF_ID ที่ได้จาก LINE Developers Console (ถ้ายังไม่ใส่ จะรันในโหมด Browser ทั่วไปได้ปกติ)
+  const LIFF_ID = ""; // เช่น "2006123456-ABCdefgh"
+  const LINE_OA_URL = "https://line.me/R/ti/p/@hpc10"; // URL ทักแชท LINE OA คลินิกหลับดี ศอ.10
+
+  let userProfile = {
+    displayName: "น้องหมอนย้วย",
+    pictureUrl: "",
+    userId: ""
+  };
+
+  // INITIALIZE LIFF
+  async function initLiff() {
+    if (!LIFF_ID || typeof liff === 'undefined') {
+      console.log("LIFF ID not set or running outside LINE. Using standalone mode.");
+      return;
+    }
+
+    try {
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isLoggedIn()) {
+        const profile = await liff.getProfile();
+        userProfile.displayName = profile.displayName;
+        userProfile.pictureUrl = profile.pictureUrl;
+        userProfile.userId = profile.userId;
+        applyUserProfile();
+      } else {
+        // สามารถเลือกให้ liff.login() ได้หากต้องการบังคับล็อกอิน
+      }
+    } catch (err) {
+      console.warn("LIFF init error:", err);
+    }
+  }
+
+  function applyUserProfile() {
+    if (userProfile.displayName) {
+      document.getElementById('userPill').style.display = 'flex';
+      document.getElementById('userNameMini').innerText = userProfile.displayName;
+      document.getElementById('patientName').value = userProfile.displayName;
+      document.getElementById('playerBattleName').innerText = userProfile.displayName;
+
+      if (userProfile.pictureUrl) {
+        document.getElementById('userAvatarMini').src = userProfile.pictureUrl;
+        // In start screen avatar
+        document.getElementById('startAvatarBox').innerHTML = `<img src="${userProfile.pictureUrl}" alt="Profile">`;
+        // In battle icon
+        document.getElementById('playerBattleIcon').innerHTML = `<img src="${userProfile.pictureUrl}" alt="Profile">`;
+      }
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    initLiff();
+  });
+
+  // AUDIO SYNTHESIZER (Web Audio API)
+  let audioCtx = null;
+  let soundEnabled = true;
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playSound(type) {
+    if (!soundEnabled || !audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+
+      if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.18);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      } else if (type === 'trick') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.setValueAtTime(320, now + 0.08);
+        osc.frequency.setValueAtTime(220, now + 0.16);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (type === 'bad') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.setValueAtTime(110, now + 0.12);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'win') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554, now + 0.1);
+        osc.frequency.setValueAtTime(659, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+    } catch (e) {
+      console.warn("Audio play error", e);
+    }
+  }
+
+  function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('btnSound').innerText = soundEnabled ? '🔊' : '🔇';
+    if (soundEnabled) initAudio();
+  }
+
+  // GAME QUESTIONS DATABASE (3 Turns: ดี + กวน + แย่)
+  const TURNS = [
+    {
+      tag: "TURN 1 OF 3 • SLEEP HYGIENE (สุขอนามัยการนอน)",
+      question: "เที่ยงคืนแล้ว พลิกตัวไปมา 40 นาที ตาสว่างโร่เป็นนกฮูก... คุณจะทำยังไงให้หลับ?",
+      bossTaunt: "ฮ่าๆๆ ตาสว่างล่ะสิ! มาเป็นซอมบี้ด้วยกันซะดีๆ!",
+      cards: [
+        {
+          type: "good",
+          badge: "🌿",
+          title: "ลุกออกจากเตียงทันที!",
+          desc: "ไปนั่งเก้าอี้ไฟสลัวๆ ฟังเพลงช้าๆ พอง่วงค่อยกลับมานอน",
+          bossDmg: 35,
+          playerDmg: 0,
+          hlPoints: 1,
+          osaPoints: 0,
+          modalIcon: "🎯",
+          modalHeadline: "ยอดเยี่ยม! รู้หลัก LM ตัวจริง!",
+          modalText: "<b>กฎ 20 นาที:</b> อย่าปล่อยให้สมองจดจำว่า 'เตียงคือที่นอนกลิ้งเล่นหรือที่ทรมาน' ถ้านอนไม่หลับเกิน 20-30 นาที ให้ลุกออกจากเตียง ทำกิจกรรมเบาๆ ที่ไม่ตื่นเต้น แล้วค่อยกลับมานอนเมื่อง่วงจริง"
+        },
+        {
+          type: "trick",
+          badge: "🍺",
+          title: "จิบเบียร์สักกระป๋อง / ไวน์สักแก้ว",
+          desc: "แอลกอฮอล์ช่วยให้ง่วง เคลิ้มๆ หลับสบายแน่นอน~",
+          bossDmg: 15,
+          playerDmg: 15,
+          hlPoints: 0,
+          osaPoints: 1,
+          modalIcon: "💥",
+          modalHeadline: "เอ๊ะ! โดนกับดักหลอกเต็มๆ!",
+          modalText: "<b>ความเชื่อผิดๆ:</b> แอลกอฮอล์ทำให้สลบเร็วก็จริง แต่ทำลายวงจรหลับลึก (REM Sleep) ตื่นมาจะเพลีย ปวดหัว คอแห้ง และที่สำคัญคือ <b>ทำให้กล้ามเนื้อคอย้วยหย่อน กรนดังสนั่น และเสี่ยงหยุดหายใจคูณสอง!</b>"
+        },
+        {
+          type: "bad",
+          badge: "📱",
+          title: "หยิบมือถือมาไถ TikTok / ซีรีส์บนเตียง",
+          desc: "ดูวนไปเรื่อยๆ เดี๋ยวเพลียตาก็สลบคาจอเอง",
+          bossDmg: 5,
+          playerDmg: 30,
+          hlPoints: 0,
+          osaPoints: 1,
+          modalIcon: "💀",
+          modalHeadline: "พังยับ! ศัตรูตัวฉกาจของเมลาโทนิน!",
+          modalText: "<b>แสงสีฟ้า (Blue Light)</b> จากหน้าจอจะยิงเข้าตา หลอกสมองว่า 'ตอนนี้เพิ่งเที่ยงวัน!' ร่างกายจึงหยุดหลั่งฮอร์โมนช่วยนอน (Melatonin) ทันที ผลลัพธ์คือนอนไม่หลับยันตี 3!"
+        }
+      ]
+    },
+    {
+      tag: "TURN 2 OF 3 • OSA SCREENING (เสียงกรน & ทางเดินหายใจ)",
+      question: "เวลานอน มีคนข้างๆ ทักว่า 'กรนดังสนั่นลั่นบ้าน' เหมือนเครื่องตัดหญ้า... มันคืออะไรกันแน่?",
+      bossTaunt: "เสียงกรนของเจ้านี่แหละ คือบทเพลงแห่งความพินาศของหัวใจ!",
+      cards: [
+        {
+          type: "good",
+          badge: "🩺",
+          title: "สัญญาณอันตราย! ทางเดินหายใจตีบแคบ",
+          desc: "ออกซิเจนตก ร่างกายเตือนว่าเสี่ยงความดันสูงและสโตรก",
+          bossDmg: 40,
+          playerDmg: 0,
+          hlPoints: 1,
+          osaPoints: 0,
+          modalIcon: "🎯",
+          modalHeadline: "ถูกต้อง! เข้าใจสัญญาณอันตราย!",
+          modalText: "<b>เสียงกรนไม่ใช่เรื่องปกติ:</b> เกิดจากช่องทางเดินหายใจส่วนบนแคบลง ลมหายใจผ่านลำบาก ทำให้ออกซิเจนในเลือดลดลง หัวใจและหลอดเลือดต้องทำงานหนักตลอดทั้งคืน!"
+        },
+        {
+          type: "trick",
+          badge: "😴",
+          title: "หลับสนิท เป็นคนนอนง่าย!",
+          desc: "ทำงานเหนื่อยทั้งวัน ร่างกายเลยพักผ่อนลึกจนกรนสบายใจ",
+          bossDmg: 15,
+          playerDmg: 20,
+          hlPoints: 0,
+          osaPoints: 2,
+          modalIcon: "💥",
+          modalHeadline: "เอ๊ะ! ความเชื่อโบราณหลอกตา!",
+          modalText: "<b>คนกรนแทบไม่เคยหลับลึก!</b> ยิ่งกรนดัง แปลว่าทางเดินหายใจยิ่งตีบ สมองจะถูกกระตุกให้ตื่นกึ่งหลับกึ่งตื่นตลอดเวลาเพื่อเอาชีวิตรอด คุณจึงรู้สึกเหมือนนอน แต่ตื่นมาเพลียเหมือนไม่ได้พัก!"
+        },
+        {
+          type: "bad",
+          badge: "🔇",
+          title: "ซื้อที่อุดหูแจกคนทั้งบ้าน",
+          desc: "หรือไม่ก็ไล่คนข้างๆ ไปนอนโซฟา จะได้ไม่บ่นหนวกหู",
+          bossDmg: 0,
+          playerDmg: 35,
+          hlPoints: 0,
+          osaPoints: 3,
+          modalIcon: "🚨",
+          modalHeadline: "หนีปัญหาแต่ชีวิตเสี่ยงตาย!",
+          modalText: "<b>แก้ผิดจุดขั้นวิกฤต:</b> คนอื่นอาจเงียบหู แต่คนกรนกำลังเสี่ยงภาวะหยุดหายใจขณะหลับ (OSA) การปล่อยทิ้งไว้โดยไม่ตรวจ Sleep Test เพิ่มความเสี่ยงใหลตาย ความดันโลหิตสูง และหัวใจวายเฉียบพลัน!"
+        }
+      ]
+    },
+    {
+      tag: "TURN 3 OF 3 • EDS SCREENING (ความสดชื่นยามเช้า & ง่วงกลางวัน)",
+      question: "นาฬิกาปลุกดังตอนเช้า... สภาพร่างกายของคุณเป็นยังไง?",
+      bossTaunt: "จงตื่นขึ้นมาเป็นซอมบี้ไร้วิญญาณซะเถอะ ฮ่าๆๆ!",
+      cards: [
+        {
+          type: "good",
+          badge: "☀️",
+          title: "ตื่นมารู้สึกสดชื่น สมองไบรท์ ไม่ปวดหัว",
+          desc: "คอไม่แห้ง พร้อมลุยงานทั้งวันโดยไม่ง่วงหลับใน",
+          bossDmg: 40,
+          playerDmg: 0,
+          hlPoints: 1,
+          osaPoints: 0,
+          modalIcon: "🌟",
+          modalHeadline: "สุดยอดสุขภาวะแห่งการนอน!",
+          modalText: "<b>นี่คือเป้าหมายของ Lifestyle Medicine:</b> การนอนที่มีคุณภาพจะช่วยซ่อมแซมเซลล์ ล้างสารพิษในสมอง ควบคุมระดับน้ำตาล และทำให้ภูมิคุ้มกันแข็งแรง"
+        },
+        {
+          type: "trick",
+          badge: "🛌",
+          title: "เพลียไม่เป็นไร เสาร์นี้นอนตุนรวดเดียว 16 ชม.!",
+          desc: "ทำงานวันธรรมดานอนน้อย ค่อยไปล้างหนี้การนอนวันหยุด",
+          bossDmg: 15,
+          playerDmg: 20,
+          hlPoints: 0,
+          osaPoints: 1,
+          modalIcon: "💥",
+          modalHeadline: "เอ๊ะ! หนี้การนอนชดเชยไม่ได้จริง!",
+          modalText: "<b>Social Jetlag:</b> การนอนตุนวันหยุดทำให้ 'นาฬิกาชีวภาพ' รวน คืนวันอาทิตย์จะนอนไม่หลับ ตื่นเช้าวันจันทร์ก็กลับมาเป็นซากศพเหมือนเดิม! หลัก LM แนะนำให้นอนและตื่นเวลาใกล้เคียงกันทุกวัน"
+        },
+        {
+          type: "bad",
+          badge: "😵",
+          title: "นอนครบ 8 ชม. แต่เพลีย คอแห้ง วูบหลับกลางวัน!",
+          desc: "นั่งประชุมหรือติดไฟแดงแล้วสัปหงกหลับในบ่อยมาก",
+          bossDmg: 0,
+          playerDmg: 35,
+          hlPoints: 0,
+          osaPoints: 3,
+          modalIcon: "⚠️",
+          modalHeadline: "Red Flag เตือนภัยสูงสุด!",
+          modalText: "<b>อาการคลาสสิกของ OSA (หยุดหายใจขณะหลับ):</b> แม้นอนหลายชั่วโมงแต่ออกซิเจนตก ร่างกายหยุดหายใจเป็นพักๆ ทำให้หลับไม่สนิท หลับในเสี่ยงอุบัติเหตุบนท้องถนน ต้องส่งตรวจ Sleep Test ทันที!"
+        }
+      ]
+    }
+  ];
+
+  // GAME STATE
+  let currentTurn = 0;
+  let playerHp = 100;
+  let bossHp = 100;
+  let totalHlScore = 0;
+  let totalOsaRisk = 0;
+
+  function startGame() {
+    initAudio();
+    currentTurn = 0;
+    playerHp = 100;
+    bossHp = 100;
+    totalHlScore = 0;
+    totalOsaRisk = 0;
+
+    document.getElementById('screen-start').classList.remove('active');
+    document.getElementById('screen-result').classList.remove('active');
+    document.getElementById('screen-battle').classList.add('active');
+
+    updateHpBars();
+    renderTurn();
+  }
+
+  function updateHpBars() {
+    document.getElementById('playerHpTxt').innerText = `${Math.max(0, playerHp)} / 100`;
+    document.getElementById('bossHpTxt').innerText = `${Math.max(0, bossHp)} / 100`;
+    document.getElementById('playerHpBar').style.width = `${Math.max(0, playerHp)}%`;
+    document.getElementById('bossHpBar').style.width = `${Math.max(0, bossHp)}%`;
+  }
+
+  function renderTurn() {
+    const turnData = TURNS[currentTurn];
+    document.getElementById('turnTag').innerText = turnData.tag;
+    document.getElementById('turnQuestion').innerText = turnData.question;
+    document.getElementById('bossDialogue').innerText = `"${turnData.bossTaunt}"`;
+
+    const deck = document.getElementById('cardsDeck');
+    deck.innerHTML = '';
+
+    // Shuffle cards
+    const shuffledCards = [...turnData.cards].sort(() => Math.random() - 0.5);
+
+    shuffledCards.forEach((card) => {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card-choice';
+      cardEl.innerHTML = `
+        <div class="card-badge ${card.type}">${card.badge}</div>
+        <div class="card-content">
+          <div class="card-title">${card.title}</div>
+          <div class="card-desc">${card.desc}</div>
+        </div>
+      `;
+      cardEl.onclick = () => selectCard(card);
+      deck.appendChild(cardEl);
+    });
+  }
+
+  function spawnDamageFloater(txt, isBoss, color) {
+    const stage = document.getElementById('arenaStage');
+    const floater = document.createElement('div');
+    floater.className = 'dmg-floater';
+    floater.style.color = color;
+    floater.innerText = txt;
+    floater.style.top = isBoss ? '35px' : '85px';
+    floater.style.left = isBoss ? '55%' : '35%';
+    stage.appendChild(floater);
+    setTimeout(() => floater.remove(), 800);
+  }
+
+  function selectCard(card) {
+    totalHlScore += card.hlPoints;
+    totalOsaRisk += card.osaPoints;
+
+    bossHp -= card.bossDmg;
+    playerHp -= card.playerDmg;
+    updateHpBars();
+
+    if (card.type === 'good') {
+      playSound('hit');
+      spawnDamageFloater(`-${card.bossDmg} 💥`, true, '#34d399');
+      const boss = document.getElementById('bossAvatar');
+      boss.classList.add('boss-shake');
+      setTimeout(() => boss.classList.remove('boss-shake'), 450);
+    } else if (card.type === 'trick') {
+      playSound('trick');
+      spawnDamageFloater(`-${card.playerDmg} 😵`, false, '#fbbf24');
+    } else {
+      playSound('bad');
+      spawnDamageFloater(`-${card.playerDmg} 💀`, false, '#f87171');
+    }
+
+    const modal = document.getElementById('modalFeedback');
+    document.getElementById('modalIcon').innerText = card.modalIcon;
+    const titleEl = document.getElementById('modalTitle');
+    titleEl.innerText = card.modalHeadline;
+    titleEl.className = `modal-headline ${card.type}`;
+    document.getElementById('modalText').innerHTML = card.modalText;
+
+    modal.classList.add('active');
+  }
+
+  function closeFeedback() {
+    document.getElementById('modalFeedback').classList.remove('active');
+    currentTurn++;
+
+    if (currentTurn < TURNS.length) {
+      renderTurn();
+    } else {
+      endGame();
+    }
+  }
+
+  function endGame() {
+    playSound('win');
+    document.getElementById('screen-battle').classList.remove('active');
+    document.getElementById('screen-result').classList.add('active');
+
+    const hlPercent = Math.round((totalHlScore / 3) * 100);
+    document.getElementById('resHlScore').innerText = `${hlPercent}%`;
+
+    const osaEl = document.getElementById('resOsaRisk');
+    const badgeEl = document.getElementById('resRankBadge');
+    const titleEl = document.getElementById('resRankTitle');
+    const subEl = document.getElementById('resRankSub');
+    const clinicBox = document.getElementById('clinicSection');
+    const clinicTitle = document.getElementById('clinicTitle');
+    const clinicDesc = document.getElementById('clinicDesc');
+
+    if (totalOsaRisk >= 3) {
+      osaEl.innerText = "เสี่ยงสูงมาก";
+      osaEl.style.color = "#ef4444";
+      badgeEl.innerText = "🚨";
+      titleEl.innerText = "สมาชิกลัทธิหยุดหายใจ!";
+      subEl.innerText = "ตรวจพบความเสี่ยงหยุดหายใจขณะหลับ (OSA) ระดับเฝ้าระวัง";
+      clinicBox.className = "clinic-box";
+      clinicTitle.innerHTML = "<span>🚨</span> ซ่อม: คลินิกหลับดี ศอ.10 (Sleep Lab)";
+      clinicDesc.innerText = "สัญญาณร่างกายของคุณฟ้องว่าทางเดินหายใจตีบแคบ ออกซิเจนดรอประหว่างนอน เสี่ยงโรคหัวใจและความดัน ปรับพฤติกรรมอย่างเดียวอาจไม่ทัน ควรตรวจ Sleep Test ให้ชัดเจนครับ";
+    } else if (totalOsaRisk >= 1) {
+      osaEl.innerText = "เสี่ยงปานกลาง";
+      osaEl.style.color = "#f59e0b";
+      badgeEl.innerText = "😴";
+      titleEl.innerText = "มนุษย์ถุงใต้ตา";
+      subEl.innerText = "สุขอนามัยการนอนรวน มีความเชื่อผิดๆ ที่ต้องรีบปรับ!";
+      clinicBox.className = "clinic-box";
+      clinicTitle.innerHTML = "<span>⚠️</span> ตรวจสอบการนอนเพิ่มเติม (ศอ.10)";
+      clinicDesc.innerText = "คุณยังมีพฤติกรรมเสี่ยงที่ทำให้หลับไม่ลึก หากยังมีอาการเพลียกลางวัน สามารถปรึกษาทีมผู้เชี่ยวชาญ คลินิกหลับดี ศอ.10 ได้ฟรีครับ";
+    } else {
+      osaEl.innerText = "เสี่ยงต่ำ (ปลอดภัย)";
+      osaEl.style.color = "#10b981";
+      badgeEl.innerText = "🏆";
+      titleEl.innerText = "เซียนหลับปุ๋ย";
+      subEl.innerText = "ความรู้แน่น พฤติกรรมเยี่ยมยอดตามหลัก Lifestyle Medicine!";
+      clinicBox.className = "clinic-box safe";
+      clinicTitle.innerHTML = "<span>🏥</span> บริการคลินิกหลับดี ศอ.10";
+      clinicDesc.innerText = "สุขภาพการนอนของคุณยอดเยี่ยม! รักษาพฤติกรรม LM ต่อไป และสามารถแชร์เกมนี้ให้คนใกล้ตัวที่นอนกรนได้ทดสอบกันครับ";
+    }
+  }
+
+  // LINE ACTIONS (Share & Chat)
+  function shareWithLineFriends() {
+    const shareText = `🛌 มาลองเล่นเกม "Sleep Quest: ภารกิจพิชิตราชาผีอำ" กัน!\nฉันทำแบบทดสอบการนอนแล้วได้ผลลัพธ์: ${document.getElementById('resRankTitle').innerText} (ความเสี่ยง OSA: ${document.getElementById('resOsaRisk').innerText})\n👉 ลองเล่นดูเลยว่าคืนนี้คุณจะรอดไหม: ${window.location.href}`;
+
+    if (typeof liff !== 'undefined' && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
+      liff.shareTargetPicker([
+        {
+          type: "text",
+          text: shareText
+        }
+      ]).then(() => {
+        alert("แชร์ให้เพื่อนใน LINE เรียบร้อยแล้ว!");
+      }).catch((e) => {
+        console.warn("Share target picker error", e);
+        fallbackShare(shareText);
+      });
+    } else {
+      fallbackShare(shareText);
+    }
+  }
+
+  function fallbackShare(text) {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Sleep Quest คลินิกหลับดี ศอ.10',
+        text: text,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("คัดลอกข้อความสำหรับแชร์ลง LINE ให้แล้วครับ!");
+      });
+    }
+  }
+
+  function openClinicLineOA() {
+    if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+      liff.openWindow({
+        url: LINE_OA_URL,
+        external: false
+      });
+    } else {
+      window.open(LINE_OA_URL, '_blank');
+    }
+  }
+
+  function submitReferral() {
+    const name = document.getElementById('patientName').value.trim() || userProfile.displayName;
+    const phone = document.getElementById('patientPhone').value.trim();
+
+    if (!phone) {
+      alert('กรุณากรอกเบอร์โทรศัพท์ เพื่อให้พี่ค้างติดต่อกลับครับ');
+      return;
+    }
+
+    const lead = {
+      name: name,
+      phone: phone,
+      lineUserId: userProfile.userId,
+      hlScore: totalHlScore,
+      osaRisk: totalOsaRisk,
+      date: new Date().toISOString()
+    };
+    
+    let leads = JSON.parse(localStorage.getItem('sleep_leads') || '[]');
+    leads.push(lead);
+    localStorage.setItem('sleep_leads', JSON.stringify(leads));
+
+    // ส่งข้อความยืนยันเข้าแชท LINE ถ้าอยู่ในห้องแชท
+    if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+      liff.sendMessages([
+        {
+          type: "text",
+          text: `📋 ส่งข้อมูลขอรับคำปรึกษาคลินิกหลับดี ศอ.10 เรียบร้อย\n👤 ชื่อ: ${name}\n📞 เบอร์ติดต่อ: ${phone}\n🏥 เจ้าหน้าที่จะติดต่อกลับในวันทำการครับ`
+        }
+      ]).catch(() => {});
+    }
+
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('sentSuccess').style.display = 'block';
+  }
+
+  function restartGame() {
+    document.getElementById('contactForm').style.display = 'block';
+    document.getElementById('sentSuccess').style.display = 'none';
+    document.getElementById('patientPhone').value = '';
+    startGame();
+  }
+</script>
+
+</body>
+</html>
