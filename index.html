@@ -1335,6 +1335,31 @@
     leads.push(lead);
     localStorage.setItem('sleep_leads', JSON.stringify(leads));
 
+    const BACKEND_GAS_URL = "https://script.google.com/macros/s/AKfycbwJT8YO3iNK9Z0Cjfq4EXRAHrka9So1y7vcPc6XaijZ9yRQYJu62bN97ngjI13ORW1hAQ/exec";
+    const payload = {
+      name: name,
+      phone: phone,
+      consent: true,
+      area: "Sleep Quest Game",
+      sb_score: totalOsaRisk >= 3 ? 5 : (totalOsaRisk >= 1 ? 3 : 1),
+      sb_tier: totalOsaRisk >= 3 ? "เสี่ยงสูง" : (totalOsaRisk >= 1 ? "เสี่ยงปานกลาง" : "เสี่ยงต่ำ"),
+      sb_answers: `HL: ${totalHlScore}/3, OSA Risk: ${totalOsaRisk}`,
+      ess_score: totalOsaRisk >= 3 ? 15 : 0,
+      ess_tier: totalOsaRisk >= 3 ? "ง่วงผิดปกติ" : "ปกติ"
+    };
+
+    // ส่งเข้า Google Sheet ของพี่ค้างโดยตรง (ผ่าน doPost ของ GAS)
+    try {
+      fetch(BACKEND_GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn("GAS submission error", e);
+    }
+
     // ส่งข้อความยืนยันเข้าแชท LINE ถ้าอยู่ในห้องแชท
     if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
       liff.sendMessages([
